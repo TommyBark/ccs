@@ -19,6 +19,7 @@ from .ccs_reporter import CcsConfig, CcsReporter
 from .common import FitterConfig
 from .eigen_reporter import EigenFitter, EigenFitterConfig
 
+import wandb
 
 @dataclass
 class Elicit(Run):
@@ -64,6 +65,8 @@ class Elicit(Run):
 
         (first_train_h, train_gt, _), *rest = train_dict.values()
         (_, v, k, d) = first_train_h.shape
+        wandb.config = {"class_no":k, "dim":d, "variant_no":v}
+
         if not all(other_h.shape[-1] == d for other_h, _, _ in rest):
             raise ValueError("All datasets must have the same hidden state size")
 
@@ -81,6 +84,7 @@ class Elicit(Run):
             assert len(train_dict) == 1, "CCS only supports single-task training"
 
             reporter = CcsReporter(self.net, d, device=device, num_variants=v)
+            wandb.watch(reporter)
             train_loss = reporter.fit(first_train_h)
             labels = repeat(to_one_hot(train_gt, k), "n k -> n v k", v=v)
             reporter.platt_scale(labels, first_train_h)
@@ -89,7 +93,7 @@ class Elicit(Run):
             fitter = EigenFitter(
                 self.net, d, num_classes=k, num_variants=v, device=device
             )
-
+            wandb.watch(fitter)
             hidden_list, label_list = [], []
             for ds_name, (train_h, train_gt, _) in train_dict.items():
                 (_, v, _, _) = train_h.shape

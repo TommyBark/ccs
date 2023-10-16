@@ -30,6 +30,8 @@ from .utils import (
     select_usable_devices,
 )
 
+import wandb
+
 
 @dataclass
 class Run(ABC, Serializable):
@@ -77,6 +79,8 @@ class Run(ABC, Serializable):
             root = elk_reporter_dir() / self.data.model / ds_name
 
             self.out_dir = memorably_named_dir(root)
+
+        #wandb.init(project="elk_test_experiment", name = self.out_dir.__str__().split("/")[-1])
 
         # Print the output directory in bold with escape codes
         print(f"Output directory at \033[1m{self.out_dir}\033[0m")
