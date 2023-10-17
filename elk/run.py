@@ -54,6 +54,7 @@ class Run(ABC, Serializable):
     num_gpus: int = -1
     out_dir: Path | None = None
     disable_cache: bool = field(default=False, to_dict=False)
+    wandb_tracking: bool = field(default=True, to_dict=False)
 
     def execute(
         self,
@@ -80,8 +81,7 @@ class Run(ABC, Serializable):
 
             self.out_dir = memorably_named_dir(root)
 
-        #wandb.init(project="elk_test_experiment", name = self.out_dir.__str__().split("/")[-1])
-
+        wandb.run.name = self.out_dir.__str__().split("/")[-1]
         # Print the output directory in bold with escape codes
         print(f"Output directory at \033[1m{self.out_dir}\033[0m")
         self.out_dir.mkdir(parents=True, exist_ok=True)
@@ -192,5 +192,6 @@ class Run(ABC, Serializable):
                 for name, dfs in df_buffers.items():
                     df = pd.concat(dfs).sort_values(by=["layer", "ensembling"])
                     df.round(4).to_csv(self.out_dir / f"{name}.csv", index=False)
+                    wandb.log({"results":wandb.Table(dataframe = df)})
                 if self.debug:
                     save_debug_log(self.datasets, self.out_dir)

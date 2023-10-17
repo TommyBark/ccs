@@ -50,6 +50,9 @@ class Sweep:
     visualize: bool = False
     """Whether to generate visualizations of the results of the sweep."""
 
+    wandb_tracking:bool = True
+    """Whether to track a wandb run"""
+    
     name: str | None = None
 
     # A bit of a hack to add all the command line arguments from Elicit

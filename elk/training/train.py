@@ -93,7 +93,7 @@ class Elicit(Run):
             fitter = EigenFitter(
                 self.net, d, num_classes=k, num_variants=v, device=device
             )
-            wandb.watch(fitter)
+            #wandb.watch(fitter) # TODO: implement watch for EigenFitter - not a torch.nn model 
             hidden_list, label_list = [], []
             for ds_name, (train_h, train_gt, _) in train_dict.items():
                 (_, v, _, _) = train_h.shape
