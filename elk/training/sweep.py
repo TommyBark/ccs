@@ -13,7 +13,7 @@ from ..training.eigen_reporter import EigenFitterConfig
 from ..utils import colorize
 from ..utils.constants import BURNS_DATASETS
 from .train import Elicit
-
+import wandb
 
 def assert_models_exist(model_names):
     for model_name in model_names:
@@ -105,7 +105,7 @@ class Sweep:
         root_dir = sweeps_dir()
         sweep_dir = root_dir / self.name if self.name else memorably_named_dir(root_dir)
         print(f"Saving sweep results to \033[1m{sweep_dir}\033[0m")  # bold
-
+        
         # Each dataset string can contain multiple datasets, delimited by plus; this
         # indicates that the component datasets will be pooled together for training.
         # For example, we might be sweeping over ["amazon_polarity", "imdb+sst2"]. For
@@ -177,6 +177,6 @@ class Sweep:
                                     skip_supervised=run.supervised == "none",
                                 )
                                 eval.execute(highlight_color="green")
-
+        wandb.run.name = sweep_dir.__str__().split("/")[-1]
         if self.visualize:
             visualize_sweep(sweep_dir)
